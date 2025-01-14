@@ -1,5 +1,6 @@
 import { AbilityConstant, AbilityStage, Want } from '@kit.AbilityKit';
 import { Log } from '../utils/LogUtils';
+import { SPUtils } from '../utils/SPUtils';
 
 
 const TAG = "WanAbilityStage"
@@ -8,6 +9,7 @@ const TAG = "WanAbilityStage"
 /**
  * 模块级别的 Context 类似android 里面的模块级别的application
  * doc: https://developer.huawei.com/consumer/cn/doc/harmonyos-guides-V2/abilitystage-0000001427584604-V2
+ * context doc : https://developer.huawei.com/consumer/cn/doc/harmonyos-references-V13/ability-arkts-application-V13
  */
 export default class WanAbilityStage extends AbilityStage {
 
@@ -17,6 +19,8 @@ export default class WanAbilityStage extends AbilityStage {
     Log.i(TAG,"onCreate")
     Log.d(TAG,`module name : ${this.context.currentHapModuleInfo.name}`)
 
+
+    SPUtils.init(this.context)
   }
 
   onAcceptWant(want: Want): string {
