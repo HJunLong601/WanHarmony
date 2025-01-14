@@ -1,6 +1,6 @@
 import { http } from '@kit.NetworkKit';
 import { hilog } from '@kit.PerformanceAnalysisKit';
-import { data } from '@kit.TelephonyKit';
+import { Log } from '../utils/LogUtils';
 import { IHttpCallback } from './IHttpCallback';
 import { Response } from './Response';
 
@@ -12,7 +12,7 @@ import { Response } from './Response';
 const TAG = "Network";
 const HOST : string = "https://www.wanandroid.com/";
 
-export default class Network{
+class Network{
   private static instance: Network;
 
   private constructor() {
@@ -30,7 +30,7 @@ export default class Network{
       let request = http.createHttp()
       let url = path.startsWith("http") ? path : `${HOST}${path}`
 
-      hilog.info(0,TAG,`start get path : ${url}`)
+      Log.i(TAG,`start get path : ${url}`)
 
       request.request(url,
         {
@@ -57,7 +57,7 @@ export default class Network{
     let request = http.createHttp()
     let url = path.startsWith("http") ? path : `${HOST}${path}`
 
-    hilog.info(0,TAG,`start get path : ${url}`)
+    Log.i(TAG,`start get path : ${url}`)
 
     request.request(url,
       {
@@ -78,12 +78,39 @@ export default class Network{
 
   }
 
-  post<T>(path : string,callback : IHttpCallback<T>){
+  async postAsync<T>(path : string) : Promise<Response<T>>{
+    return new Promise<Response<T>>((resolve, reject) => {
+      let request = http.createHttp()
+      let url = path.startsWith("http") ? path : `${HOST}${path}`
+
+      Log.i(TAG,`start get path : ${url}`)
+
+      request.request(url,
+        {
+          method : http.RequestMethod.POST,
+          connectTimeout: 10000,
+          readTimeout: 10000
+        },(err,data) => {
+          let res = new Response<T>()
+          if (!err && data.responseCode === 200) {
+            handleResultAsync<T>(path, data, res, resolve);
+          } else {
+            hilog.error(0, TAG, `request error, path: ${path}, error: ${JSON.stringify(err)}`)
+            res.errorCode = data?.responseCode ?? -1
+            res.errorMsg = err?.message ?? ""
+            resolve(res)
+          }
+        })
+
+    })
+  }
+
+  post<T>(path : string,callback : IHttpCallback<T>) {
 
     let request = http.createHttp()
     let url = path.startsWith("http") ? path : `${HOST}${path}`
 
-    hilog.info(0,TAG,`start get path : ${url}`)
+    Log.i(TAG,`start get path : ${url}`)
 
     request.request(url,
       {
@@ -107,7 +134,7 @@ export default class Network{
 }
 
 function handleResultAsync<T>(path: string, data: http.HttpResponse, res: Response<T>, resolve : (value: Response<T>)=> void) {
-  hilog.info(0, TAG, `request success, path: ${path}, result: ${JSON.stringify(data)}`);
+  Log.i(TAG, `request success, path: ${path}, result: ${JSON.stringify(data)}`);
 
   if (data.resultType === http.HttpDataType.STRING) {
     let result: Response<T> = JSON.parse(data.result as string);
@@ -129,7 +156,7 @@ function handleResultAsync<T>(path: string, data: http.HttpResponse, res: Respon
 }
 
 function handleResult<T>(path: string, data: http.HttpResponse, res: Response<T>, callback: IHttpCallback<T>) {
-  hilog.info(0, TAG, `request success, path: ${path}, result: ${JSON.stringify(data)}`);
+  Log.i(TAG, `request success, path: ${path}, result: ${JSON.stringify(data.result)}`);
 
   if (data.resultType === http.HttpDataType.STRING) {
     let result: Response<T> = JSON.parse(data.result as string);
@@ -149,6 +176,8 @@ function handleResult<T>(path: string, data: http.HttpResponse, res: Response<T>
     callback.onResult(res);
   }
 }
+
+export const API = Network.getInstance()
 
 
 

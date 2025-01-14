@@ -1,4 +1,4 @@
-import Network from '../net/NetworkUtils';
+import  { API } from '../net/NetworkUtils';
 
 @Entry
 @Component
@@ -23,7 +23,7 @@ struct Index {
         //   }
         // })
 
-        let tmp = await Network.getInstance().getAsync<string>("banner/json")
+        let tmp = await API.getAsync<string>("banner/json")
         console.log(`ward : ${tmp.errorCode} ${tmp.errorMsg} ${tmp.data}`)
       })
 
