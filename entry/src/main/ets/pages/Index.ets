@@ -1,3 +1,4 @@
+import { Log } from '../utils/LogUtils'
 
 @Entry
 @Component
@@ -10,6 +11,10 @@ struct Index {
     [$r("app.media.icon_home"), $r("app.media.icon_wenda"), $r("app.media.icon_book"), $r("app.media.icon_login_blue")]
   unselectIcons = [$r("app.media.icon_home_grey"), $r("app.media.icon_wenda_gray"), $r("app.media.icon_book_grey"),
     $r("app.media.icon_login_gray")]
+
+  aboutToAppear(): void {
+    Log.d("ward", "aboutToAppear")
+  }
 
   @Builder
   tabBuilder(index: number) {
